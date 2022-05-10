@@ -1,0 +1,52 @@
+discord:
+  #Discord Bot Token
+  token: ""
+  #Discord Bot ID (For inviting)
+  clientId: ""
+  #Prefix
+  prefix: "+"
+lossPrevention:
+  #Channel to log LossPrevention actions to.
+  loggingChannel: ""
+  #Default Archival Mode, options are: DELETION, or ARCHIVAL. DELETION deletes the channel. ARCHIVAL renames the channel and makes it only visible to admins. Both replace the channel.
+  defaultArchiveMode: "ARCHIVAL"
+  #Total Users bannable/kickable before cooldown.
+  banLimit: 2
+  #Amount of time for cooldown (in minutes)
+  banCooldown: 15
+  #Role for cooldown bypass (role id)
+  bypassRole: ""
+  #Permits whether cfg can be modified from discord. (true/false)
+  configModifiable: false
+  #Channel Limit before cooldown.
+  chanLimit: 1
+  #Amount of time for cooldown (in minutes)
+  chanCooldown: 30
+  #Type of cooldown
+  #soft = Temporary role removal, uses cooldown time.
+  #hard = Permanent role removal, does not use cooldown time.
+  #extreme = Immediate ban from the discord, does not use cooldown time.
+  #none = bot disabled.
+  cooldownType: "hard"
+  #Whether permissions are blocked on new role creations unless bypass is enabled. (Reccomended to leave this on.)
+  blockPerms: true
+  #Blocks specific permissions being created in new roles unless the user has bypass. (Use https://javadoc.io/doc/net.dv8tion/JDA/4.1.1_107/net/dv8tion/jda/api/Permission.html for reference)
+  blockedPermissions:
+    - ADMINISTRATOR
+    - BAN_MEMBERS
+    - KICK_MEMBERS
+    - MANAGE_CHANNEL
+    - MANAGE_ROLES
+    - MANAGE_PERMISSIONS
+    - MANAGE_SERVER
+    - MESSAGE_MANAGE
+  #Roles that should be removed, make sure to list by ID.
+  adminRoles:
+    - 0
+    - 1
+    - 2
+  #Specific users that can bypass this bot entirely, list by ID
+  userBypass:
+    - 0
+    - 1
+    - 2
