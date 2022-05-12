@@ -4,6 +4,8 @@ import link.alpinia.LossPrevention.command.MainHandler;
 import link.alpinia.LossPrevention.model.ArchiveManager;
 import link.alpinia.LossPrevention.listener.PrimaryListener;
 import link.alpinia.LossPrevention.model.Archive;
+import link.alpinia.SlashComLib.CommandClass;
+import link.alpinia.SlashComLib.CommandRegistrar;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.Permission;
@@ -39,7 +41,11 @@ public class LossPrevention {
 
     public LPConfig lpConfig;
 
+    private CommandRegistrar commandRegistrar;
+
     public ArchiveManager archiveManager;
+
+    public List<CommandClass> activeCommands;
 
     //We check every 60 seconds.
     private final long timeToArchiveCheck = 60000;
@@ -64,6 +70,8 @@ public class LossPrevention {
         lpConfig = new LPConfig();
         lpConfig.loadConfigurations();
         archiveManager = new ArchiveManager();
+        commandRegistrar = new CommandRegistrar();
+        activeCommands = commandRegistrar.getCommandClasses("link.alpinia.LossPrevention.command");
 
         PREFIX = lpConfig.getPrefix();
         //After CFG is loaded we can now load the bot.
@@ -73,6 +81,8 @@ public class LossPrevention {
             logger.error("Failed to start LossPrevention, check the stack trace and contact a developer if you cannot fix it on your own.");
             e.printStackTrace();
         }
+
+        commandRegistrar.registerCommands(this.JDA, activeCommands);
 
         archiveTimer.scheduleAtFixedRate(new TimerTask() {
                                              @Override
@@ -95,7 +105,7 @@ public class LossPrevention {
 
     public void startInstance() throws LoginException, InterruptedException {
         JDABuilder builder = JDABuilder.createDefault(lpConfig.getToken())
-                .addEventListeners(new PrimaryListener(), new MainHandler())
+                .addEventListeners(new PrimaryListener())
                 .enableIntents(GatewayIntent.GUILD_MEMBERS)
                 .setChunkingFilter(ChunkingFilter.ALL)
                 .setMemberCachePolicy(MemberCachePolicy.ALL)
@@ -140,14 +150,14 @@ public class LossPrevention {
             //Archive is overdue for handling.
             TextChannel toBeArchived = archive.getChannel();
             String oldName = toBeArchived.getName();
-            Category archiveCategory = archive.getChannel().getParent(); //The category that the archived channel was apart of.
+            Category archiveCategory = archive.getChannel().getParentCategory(); //The category that the archived channel was apart of.
             List<PermissionOverride> oldPerms = toBeArchived.getPermissionOverrides(); //We save these for the new channel.
             toBeArchived.sendMessage("**This channel is now being archived as of " + formatter.format(date) + ".**").queue();
             for (PermissionOverride perm : toBeArchived.getPermissionOverrides()) {
                 //we strip perms from all.
                 perm.delete().queue();
             }
-            toBeArchived.putPermissionOverride(JDA.getRolesByName("@everyone", true).get(0)).setDeny(Permission.VIEW_CHANNEL, Permission.MESSAGE_READ).queue();
+            toBeArchived.putPermissionOverride(JDA.getRolesByName("@everyone", true).get(0)).setDeny(Permission.VIEW_CHANNEL, Permission.MESSAGE_SEND).queue();
             toBeArchived.getManager().setName(toBeArchived.getName() + "-" + formatter.format(date)).queue();
             TextChannel newChannel = archiveCategory.createTextChannel(oldName).complete();
             newChannel.getManager().sync().queue(); //Sync the channel with the category, THEN apply our permission overrides.
@@ -167,7 +177,7 @@ public class LossPrevention {
             Date date = new Date();
             //Archive is overdue for handling.
             String oldName = channel.getName();
-            Category archiveCategory = channel.getParent(); //The category that the archived channel was apart of.
+            Category archiveCategory = channel.getParentCategory(); //The category that the archived channel was apart of.
             List<PermissionOverride> oldPerms = channel.getPermissionOverrides(); //We save these for the new channel.
             channel.sendMessage("**This channel is now being archived as of " + formatter.format(date) + ".**").queue();
             for (PermissionOverride perm : channel.getPermissionOverrides()) {
@@ -178,7 +188,7 @@ public class LossPrevention {
             channel.getManager().setName(channel.getName() + "-" + formatter.format(date)).queue();
             for(Role role : channel.getGuild().getRoles()) {
                 if(role.getName().equalsIgnoreCase("@everyone")) {
-                    channel.putPermissionOverride(role).setDeny(Permission.VIEW_CHANNEL, Permission.MESSAGE_READ).completeAfter(2, TimeUnit.SECONDS);
+                    channel.putPermissionOverride(role).setDeny(Permission.VIEW_CHANNEL, Permission.MESSAGE_SEND).completeAfter(2, TimeUnit.SECONDS);
                 }
             }
             TextChannel newChannel = archiveCategory.createTextChannel(oldName).complete();
@@ -203,7 +213,7 @@ public class LossPrevention {
             Date date = new Date();
             //Deleted channel is overdue for handling.
             String oldName = channel.getName();
-            Category archiveCategory = channel.getParent(); //The category that the deleted channel was apart of.
+            Category archiveCategory = channel.getParentCategory(); //The category that the deleted channel was apart of.
             List<PermissionOverride> oldPerms = channel.getPermissionOverrides(); //We save these for the new channel.
             channel.sendMessage("**This channel is now being deleted as of " + formatter.format(date) + ".**").queue();
             for (PermissionOverride perm : channel.getPermissionOverrides()) {

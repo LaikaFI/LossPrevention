@@ -1,13 +1,12 @@
 package link.alpinia.LossPrevention;
 
-import link.alpinia.LossPrevention.command.CommandHandler;
 import net.dv8tion.jda.api.EmbedBuilder;
 
 import java.awt.*;
 import java.util.List;
 
 public class LPUtility {
-
+/*
     public static String helpCommandResponse(List<Object> objects) {
         StringBuilder formatted = new StringBuilder();
         for(Object o : objects) {
@@ -23,7 +22,7 @@ public class LPUtility {
         }
         return formatted.toString(); //Return formatted string.
     }
-
+ */
     public static EmbedBuilder errorResponse() {
         return new EmbedBuilder().setTitle("An error occurred").setColor(new Color(0xea2727))
                 .setDescription("Contact a developer.");

@@ -2,16 +2,21 @@ package link.alpinia.LossPrevention.command;
 
 import link.alpinia.LossPrevention.LPUtility;
 import link.alpinia.LossPrevention.LossPrevention;
+import link.alpinia.SlashComLib.CommandClass;
+import link.alpinia.SlashComLib.CommandInfo;
+import link.alpinia.SlashComLib.CommandType;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.PrivateChannel;
-import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
+import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.api.interactions.commands.OptionType;
 
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MainHandler extends CommandHandler{
+public class MainHandler extends CommandClass {
 
     public static String NO_PERMS = "**You lack the permission required to execute this command.**";
 
@@ -26,93 +31,69 @@ public class MainHandler extends CommandHandler{
     }
 
     @Override
-    public void executeCommand(String[] args, GuildMessageReceivedEvent e, boolean prefix) {
-
-        if(!e.getChannel().canTalk()) {
-            try {
-                PrivateChannel pc = e.getAuthor().openPrivateChannel().complete();
-                pc.sendMessage("**I'm unable to speak in that channel!**").queue();
-            } catch (Exception ex) {
-                //Message failed or something, we just stop trying if this occurs.
-            }
-            return;
-        }
-        if(e.getMessage().getMentionedUsers().contains(LossPrevention.instance.JDA.getSelfUser())) {
-            EmbedBuilder eb = new EmbedBuilder().setTitle("Hi, I'm LossPrevention.")
-                    .setDescription("Hey, use `" + LossPrevention.PREFIX + "help` to get help!\n"
-                    + "I'm a bot that encourages discord server security by archiving channels occasionally.")
-                    .setColor(new Color(0xfcc95a));
-            e.getChannel().sendMessageEmbeds(eb.build()).queue();
-        }
-        if(!prefix) { return; }
-        if(args.length == 1) {
-            if(args[0].equalsIgnoreCase("help")) {
-                EmbedBuilder eb = new EmbedBuilder().setTitle("LossPrevention Help")
-                        .setColor(new Color(0xfcc95a))
-                        .setDescription(LPUtility.helpCommandResponse(LossPrevention.instance.JDA.getRegisteredListeners()))
-                        .setFooter("Created by Laika, click for an invite!", LossPrevention.instance.lpConfig.getInviteUrl());
-                e.getChannel().sendMessageEmbeds(eb.build()).queue();
+    public void newCommand(String name, SlashCommandInteractionEvent e) {
+        switch(name) {
+            case "help" -> {
+                e.deferReply().queue();
+                e.getHook().sendMessage("**just... look at the command menu?**").queue();
                 return;
             }
-            if(args[0].equalsIgnoreCase("archive")) {
+            case "archive" -> {
+                e.deferReply().queue();
                 //Check to make sure the user has the "Manage Channel" permission, or the "Administrator" permission.
                 try {
+                    var textChannel = e.getOption("channel").getAsTextChannel();
                     if (e.getMember().hasPermission(Permission.MANAGE_CHANNEL) || e.getMember().hasPermission(Permission.ADMINISTRATOR)) {
                         //Member has perms, proceed.
                         e.getChannel().sendMessage("**Starting archive...**").queue();
-                        if(LossPrevention.instance.doChannelArchive(e.getChannel())) {
-                            e.getChannel().sendMessage("Archive Complete!").queue();
+                        if(LossPrevention.instance.doChannelArchive(textChannel)) {
+                            textChannel.sendMessage("Archive Complete!").queue();
                         } else {
-                            e.getChannel().sendMessage("**An error occurred. Contact a developer.").queue();
+                            textChannel.sendMessage("**An error occurred. Contact a developer.").queue();
                         }
                     } else {
-                        e.getChannel().sendMessage(NO_PERMS).queue();
+                        e.getHook().sendMessage(NO_PERMS).queue();
                     }
                 } catch (Exception ex) {
-                    e.getChannel().sendMessageEmbeds(LPUtility.errorResponse().build()).queue();
+                    e.getHook().sendMessageEmbeds(LPUtility.errorResponse().build()).queue();
                     LossPrevention.logger.warn("An error occurred while archiving a channel.");
                     ex.printStackTrace();
                 }
                 return;
             }
-            if(args[0].equalsIgnoreCase("delete")) {
+            case "delete" -> {
+                e.deferReply().queue();
                 try {
+                    var textChannel = e.getOption("channel").getAsTextChannel();
                     if(e.getMember().hasPermission(Permission.MANAGE_CHANNEL) || e.getMember().hasPermission(Permission.ADMINISTRATOR)) {
                         e.getChannel().sendMessage("**Starting deletion...").queue();
-                        if(LossPrevention.instance.doChannelDelete(e.getChannel())) {
+                        if(LossPrevention.instance.doChannelDelete(textChannel)) {
                             //Cool it worked
                         } else {
-                            e.getChannel().sendMessage("**An error occurred...**").queue();
+                            textChannel.sendMessage("**An error occurred...**").queue();
                         }
                     } else {
-                        e.getChannel().sendMessage(NO_PERMS).queue();
+                        e.getHook().sendMessage(NO_PERMS).queue();
                     }
                 } catch (Exception ex) {
-                    e.getChannel().sendMessageEmbeds(LPUtility.errorResponse().build()).queue();
+                    e.getHook().sendMessageEmbeds(LPUtility.errorResponse().build()).queue();
                     LossPrevention.logger.warn("An error occurred while deleting a channel.");
                 }
                 return;
             }
-            if(args[0].equalsIgnoreCase("debug")) {
-                LossPrevention.getLogger().info("Logging debug func");
-                e.getChannel().sendMessage("Debug :boom:").queue();
-            }
         }
-
-        //If they've reached here that means they used an invalid command, send help command as a result.
-        EmbedBuilder eb = new EmbedBuilder().setTitle("Hi, I'm LossPrevention.")
-                .setDescription("Hey, use `" + LossPrevention.PREFIX + "help` to get help!\n"
-                        + "I'm a bot that encourages discord server security by archiving channels occasionally.")
-                .setColor(new Color(0xfcc95a));
-        e.getChannel().sendMessageEmbeds(eb.build()).queue();
     }
 
     @Override
-    public List<String> getCommandsAsList() {
-        List<String> str = new ArrayList<>();
-        str.add("help - basic help command");
-        str.add("archive - immediately archives a channel.");
-        str.add("delete - immediately deletes a channel and creates a replacement.");
-        return str;
+    public List<CommandInfo> getSlashCommandInfo() {
+        List<CommandInfo> cis = new ArrayList<>();
+        cis.add(new CommandInfo("help", "basic help command", CommandType.COMMAND));
+        CommandInfo ci1 = new CommandInfo("archive", "immediately archives a channel", CommandType.COMMAND);
+        ci1.addOption("channel", "the channel to archive", OptionType.CHANNEL, true);
+        cis.add(ci1);
+        CommandInfo ci2 = new CommandInfo("delete", "immediately deletes a channel and creates a replacement", CommandType.COMMAND);
+        ci2.addOption("channel", "the channel to delete", OptionType.CHANNEL, true);
+        cis.add(ci2);
+        return cis;
     }
 }
