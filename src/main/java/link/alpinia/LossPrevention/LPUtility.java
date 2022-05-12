@@ -1,6 +1,6 @@
-package moe.kayla.LossPrevention;
+package link.alpinia.LossPrevention;
 
-import moe.kayla.LossPrevention.command.CommandHandler;
+import link.alpinia.LossPrevention.command.CommandHandler;
 import net.dv8tion.jda.api.EmbedBuilder;
 
 import java.awt.*;

@@ -1,10 +1,9 @@
-package moe.kayla.LossPrevention;
+package link.alpinia.LossPrevention;
 
-import moe.kayla.LossPrevention.command.MainHandler;
-import moe.kayla.LossPrevention.listener.LPListener;
-import moe.kayla.LossPrevention.listener.PrimaryListener;
-import moe.kayla.LossPrevention.model.Archive;
-import moe.kayla.LossPrevention.model.ArchiveManager;
+import link.alpinia.LossPrevention.command.MainHandler;
+import link.alpinia.LossPrevention.model.ArchiveManager;
+import link.alpinia.LossPrevention.listener.PrimaryListener;
+import link.alpinia.LossPrevention.model.Archive;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.Permission;
@@ -17,7 +16,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.security.auth.login.LoginException;
-import javax.xml.crypto.Data;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;

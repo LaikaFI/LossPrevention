@@ -1,7 +1,7 @@
-package moe.kayla.LossPrevention.command;
+package link.alpinia.LossPrevention.command;
 
-import moe.kayla.LossPrevention.LPUtility;
-import moe.kayla.LossPrevention.LossPrevention;
+import link.alpinia.LossPrevention.LPUtility;
+import link.alpinia.LossPrevention.LossPrevention;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.PrivateChannel;

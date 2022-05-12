@@ -1,6 +1,6 @@
-package moe.kayla.LossPrevention.model;
+package link.alpinia.LossPrevention.model;
 
-import moe.kayla.LossPrevention.LossPrevention;
+import link.alpinia.LossPrevention.LossPrevention;
 import net.dv8tion.jda.api.audit.AuditLogEntry;
 import net.dv8tion.jda.api.entities.User;
 

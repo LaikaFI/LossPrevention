@@ -1,4 +1,4 @@
-package moe.kayla.LossPrevention;
+package link.alpinia.LossPrevention;
 
 import org.simpleyaml.configuration.ConfigurationSection;
 import org.simpleyaml.configuration.file.YamlConfiguration;

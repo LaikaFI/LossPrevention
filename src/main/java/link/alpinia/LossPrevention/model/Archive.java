@@ -1,4 +1,4 @@
-package moe.kayla.LossPrevention.model;
+package link.alpinia.LossPrevention.model;
 
 import net.dv8tion.jda.api.entities.TextChannel;
 

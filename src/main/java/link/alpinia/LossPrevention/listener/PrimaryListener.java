@@ -1,6 +1,6 @@
-package moe.kayla.LossPrevention.listener;
+package link.alpinia.LossPrevention.listener;
 
-import moe.kayla.LossPrevention.LossPrevention;
+import link.alpinia.LossPrevention.LossPrevention;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.events.role.update.RoleUpdatePermissionsEvent;

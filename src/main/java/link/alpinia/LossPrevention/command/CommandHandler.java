@@ -1,7 +1,7 @@
-package moe.kayla.LossPrevention.command;
+package link.alpinia.LossPrevention.command;
 
-import moe.kayla.LossPrevention.LPConfig;
-import moe.kayla.LossPrevention.LossPrevention;
+import link.alpinia.LossPrevention.LossPrevention;
+import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
@@ -27,7 +27,7 @@ public abstract class CommandHandler extends ListenerAdapter {
     @Override
     public void onGuildMessageReceived(GuildMessageReceivedEvent event) {
         if(event.getAuthor().isBot() || event.getAuthor().isSystem()) return;
-        if(event.getAuthor().getId() == LossPrevention.instance.JDA.getSelfUser().getId()) return;
+        if(event.getAuthor().getId().equals(LossPrevention.instance.JDA.getSelfUser().getId())) return;
         if(!event.getChannel().canTalk()) return;
 
         String[] args = event.getMessage().getContentDisplay().replace(LossPrevention.PREFIX, "").split(" ");
