@@ -39,9 +39,14 @@
             <type>jar</type>
         </dependency>
         <dependency>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
+            <version>8.0.28</version>
+        </dependency>
+        <dependency>
             <groupId>com.github.LaikaFI</groupId>
             <artifactId>SlashComLib</artifactId>
-            <version>v1.0.0</version>
+            <version>v1.1.0</version>
             <scope>compile</scope>
         </dependency>
         <dependency>

@@ -1,5 +1,6 @@
 package link.alpinia.LossPrevention;
 
+import link.alpinia.LossPrevention.database.LPDatabase;
 import org.simpleyaml.configuration.ConfigurationSection;
 import org.simpleyaml.configuration.file.YamlConfiguration;
 
@@ -55,6 +56,17 @@ public class LPConfig {
         banTime = lpc.getInt("banCooldown");
     }
 
+    private LPDatabase loadDatabase() {
+        var sec = configuration.getConfigurationSection("sql");
+        return new LPDatabase(
+                sec.getString("username"),
+                sec.getString("password"),
+                sec.getString("host"),
+                sec.getInt("port"),
+                sec.getString("database")
+        );
+    }
+
     public String getToken() {
         return token;
     }
@@ -73,5 +85,7 @@ public class LPConfig {
 
     public String getLogChannel() { return logChannel; }
 
-    public String getInviteUrl() { return "https://discord.com/oauth2/authorize?client_id=" + getClientId() + "&scope=bot&permissions=8"; }
+    public LPDatabase getDatabase() { return loadDatabase(); }
+
+    public String getInviteUrl() { return "https://discord.com/oauth2/authorize?client_id=" + getClientId() + "&scope=bot+applications.commands&permissions=8"; }
 }

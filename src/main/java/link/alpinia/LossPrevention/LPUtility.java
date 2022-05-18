@@ -27,4 +27,8 @@ public class LPUtility {
         return new EmbedBuilder().setTitle("An error occurred").setColor(new Color(0xea2727))
                 .setDescription("Contact a developer.");
     }
+
+    public static String archiveOptions() {
+        return "mode/type (either ARCHIVAL or DELETION) or time (in hours).";
+    }
 }

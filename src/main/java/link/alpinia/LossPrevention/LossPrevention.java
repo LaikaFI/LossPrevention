@@ -1,6 +1,7 @@
 package link.alpinia.LossPrevention;
 
 import link.alpinia.LossPrevention.command.MainHandler;
+import link.alpinia.LossPrevention.database.LPDatabase;
 import link.alpinia.LossPrevention.model.ArchiveManager;
 import link.alpinia.LossPrevention.listener.PrimaryListener;
 import link.alpinia.LossPrevention.model.Archive;
@@ -45,6 +46,8 @@ public class LossPrevention {
 
     public ArchiveManager archiveManager;
 
+    public LPDatabase database;
+
     public List<CommandClass> activeCommands;
 
     //We check every 60 seconds.
@@ -82,6 +85,12 @@ public class LossPrevention {
             e.printStackTrace();
         }
 
+        //Load DB
+        database = lpConfig.getDatabase();
+        database.loadArchives();
+        Runtime.getRuntime().addShutdownHook(new Thread(this::shutdown));
+        logger.info("Shutdown hook registered.");
+        logger.info("Invite Link: " + lpConfig.getInviteUrl());
         commandRegistrar.registerCommands(this.JDA, activeCommands);
 
         archiveTimer.scheduleAtFixedRate(new TimerTask() {
@@ -90,23 +99,20 @@ public class LossPrevention {
                                                  checkArchiveTasks();
                                              }
                                          }, 5000, timeToArchiveCheck);
-
         //We do pizazz magic here.
         while(active) {
 
         }
-
-        Runtime.getRuntime().addShutdownHook(new Thread(this::shutdown));
     }
 
     public void shutdown() {
-
+        database.saveArchives();
     }
 
     public void startInstance() throws LoginException, InterruptedException {
         JDABuilder builder = JDABuilder.createDefault(lpConfig.getToken())
                 .addEventListeners(new PrimaryListener())
-                .enableIntents(GatewayIntent.GUILD_MEMBERS)
+                .enableIntents(GatewayIntent.GUILD_MEMBERS, GatewayIntent.GUILD_MESSAGES)
                 .setChunkingFilter(ChunkingFilter.ALL)
                 .setMemberCachePolicy(MemberCachePolicy.ALL)
                 .setActivity(Activity.watching("admins"));
@@ -136,9 +142,13 @@ public class LossPrevention {
     }
 
     public void checkArchiveTasks() {
-        for(Archive archive : archiveManager.getChannelsForArchival().values()) {
-            if(archive.getArchiveTime() > (System.currentTimeMillis() - archive.getLastArchiveTimestamp())) {
-                doArchiveTask(archive);
+        logger.info("Archive Check - " + formatter.format(new Date()));
+        for(Archive archive : archiveManager.getChannelsForArchival()) {
+            //Don't archive channels with unset times.
+            if(!(archive.getArchiveTime() == 0)) {
+                if (archive.getArchiveTime() < (System.currentTimeMillis() - archive.getLastArchiveTimestamp())) {
+                    doArchiveTask(archive);
+                }
             }
         }
     }
@@ -165,6 +175,7 @@ public class LossPrevention {
                 newChannel.putPermissionOverride(perm.getPermissionHolder()).setDeny(perm.getDenied()).setAllow(perm.getAllowed()).queue();
             }
             newChannel.sendMessage("**Archive Complete.**").queue();
+            archive.setChannel(newChannel); //Finally, configure our archive for the new channel.
         } catch (Exception ex) {
             archive.getChannel().sendMessage("**An exception occurred while trying to archive the channel. Check the logs please.").queue();
             ex.printStackTrace();
@@ -209,13 +220,13 @@ public class LossPrevention {
 
     public boolean doChannelDelete(TextChannel channel) {
         try {
-            JDA.getTextChannelById(lpConfig.getLogChannel()).sendMessage("**Deleting " + channel.getName() + " now...**").queue();
+            this.JDA.getTextChannelById(lpConfig.getLogChannel()).sendMessage("**Deleting " + channel.getName() + " now...**").queue();
             Date date = new Date();
             //Deleted channel is overdue for handling.
             String oldName = channel.getName();
             Category archiveCategory = channel.getParentCategory(); //The category that the deleted channel was apart of.
             List<PermissionOverride> oldPerms = channel.getPermissionOverrides(); //We save these for the new channel.
-            channel.sendMessage("**This channel is now being deleted as of " + formatter.format(date) + ".**").queue();
+            //channel.sendMessage("**This channel is now being deleted as of " + formatter.format(date) + ".**").queue();
             for (PermissionOverride perm : channel.getPermissionOverrides()) {
                 //we strip perms from all.
                 perm.delete().queue();
@@ -235,6 +246,10 @@ public class LossPrevention {
             ex.printStackTrace();
             return false;
         }
+    }
+
+    public TextChannel tryFetchTextChannel(String id) {
+        return this.JDA.getTextChannelById(id);
     }
 
     public static Logger getLogger() {
