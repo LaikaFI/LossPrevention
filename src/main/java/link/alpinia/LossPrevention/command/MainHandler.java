@@ -71,6 +71,10 @@ public class MainHandler extends CommandClass {
                         try {
                             var textChannel = e.getOption("channel").getAsTextChannel();
                             if (e.getMember().hasPermission(Permission.MANAGE_CHANNEL) || e.getMember().hasPermission(Permission.ADMINISTRATOR)) {
+                                if(LossPrevention.instance.archiveManager.getArchiveByChannel(textChannel) != null) {
+                                    e.getHook().setEphemeral(true).sendMessage("**An archive already exists for this channel!** Use `/archive modify` instead!").queue();
+                                    return;
+                                }
                                 try {
                                     var type = ArchiveMode.valueOf(e.getOption("type").getAsString().toUpperCase());
                                     var newArchive = new Archive(type, textChannel);

@@ -21,6 +21,8 @@ public class LPConfig {
     private int banTime;
     private List<String> bypassUsers;
 
+    private List<String> adminRoles;
+
     public LPConfig() {
         initializeCfg();
     }
@@ -54,6 +56,7 @@ public class LPConfig {
         bypassRole = lpc.getLong("bypassRole");
         bypassUsers = lpc.getStringList("userBypass");
         banTime = lpc.getInt("banCooldown");
+        adminRoles = lpc.getStringList("adminRoles");
     }
 
     private LPDatabase loadDatabase() {
@@ -84,6 +87,8 @@ public class LPConfig {
     public int getBanTimeInMilis() { return banTime * 60 * 1000; }
 
     public String getLogChannel() { return logChannel; }
+
+    public List<String> getAdminRoles() { return adminRoles; }
 
     public LPDatabase getDatabase() { return loadDatabase(); }
 
